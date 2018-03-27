@@ -1,0 +1,76 @@
+
+--declare @activePricebooks table (name varchar(100), pricebookid int)
+--insert into @activePricebooks (name, pricebookid)
+--select workgroup_desc name, price_book_id pricebookid
+--from idea.dbo.CO_WORKGROUP
+--where hydra_id in (
+--select idx
+--from m_center.dbo.tbl_center
+--where isparent = 1)
+
+--declare @pricedVZXdoors table (SMARTPART_NUM varchar(100), pricebookid int)
+--insert into @pricedVZXdoors (SMARTPART_NUM, pricebookid)
+--select SMARTPART_NUM, PRICE_BOOK_ID pricebookid
+--from idea.dbo.CO_PRICE_ITEM_MASTER
+--where SMARTPART_NUM in (
+--select door_master_code SMARTPART_NUM
+--from hydra_dev.dbo.hydra_door_master
+--where door_sub_code = 'VZX'
+--and active_status = 'Y')
+
+--declare @pricedVZXsidelites table (SMARTPART_NUM varchar(100), pricebookid int)
+--insert into @pricedVZXsidelites (SMARTPART_NUM, pricebookid)
+--select SMARTPART_NUM, PRICE_BOOK_ID pricebookid
+--from idea.dbo.CO_PRICE_ITEM_MASTER
+--where SMARTPART_NUM in (
+--select sidelite_master_code SMARTPART_NUM
+--from hydra_dev.dbo.hydra_sidelite_master
+--where door_sub_code = 'VZX'
+--and active_status = 'Y')
+
+--;
+--WITH pricedVZXdoors as (
+--select SMARTPART_NUM, PRICE_BOOK_ID pricebookid
+--from idea.dbo.CO_PRICE_ITEM_MASTER
+--where SMARTPART_NUM in (
+--select door_master_code SMARTPART_NUM
+--from hydra_dev.dbo.hydra_door_master
+--where door_sub_code = 'VZX'
+--and active_status = 'Y'))
+
+/* =================DOORS================== */
+
+-- populates active pricebooks
+declare @activePricebooks table (name varchar(100), pricebook int, id int)
+insert into @activePricebooks (name, pricebook, id)
+values
+
+
+----old select statement to grab info
+--select workgroup_desc name, price_book_id pricebookid
+--from idea.dbo.CO_WORKGROUP
+--where hydra_id in (
+--select idx, loc_name
+--from m_center.dbo.tbl_center
+--where isconfigureoneparentmerchant = 1)
+
+
+-- populates active VZX doors that are priced in the CO_PRICE_ITEM_MASTER
+declare @pricedVZXdoors table (SMARTPART_NUM varchar(100), pricebookid int)
+insert into @pricedVZXdoors (SMARTPART_NUM, pricebookid)
+select SMARTPART_NUM, PRICE_BOOK_ID pricebookid
+from idea.dbo.CO_PRICE_ITEM_MASTER
+where SMARTPART_NUM in (
+select door_master_code SMARTPART_NUM
+from hydra_dev.dbo.hydra_door_master
+where door_sub_code = 'VZX'
+and active_status = 'Y'
+
+select distinct PB.name, PB.pricebookid, SMARTPART_NUM, DM.door_Master_id, DMX.hcidx
+from @pricedVZXdoors VD
+LEFT JOIN @activePricebooks PB on VD.pricebookid = PB.pricebookid
+LEFT JOIN m_center.dbo.tbl_hc_door_master_exception DMX on PB.hcidx = DMX.hcidx 
+LEFT JOIN hydra_dev.dbo.hydra_door_master DM on VD.SMARTPART_NUM = DM.door_master_code
+LEFT JOIN hydra_dev.dbo.hydra_door_master on DMX.door_master_id = DM.door_master_id
+order by name
+OPTION (recompile)
