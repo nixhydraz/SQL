@@ -1,20 +1,20 @@
 SELECT
        cd.USER_ID,
        cd.DOC_ID,
-	   (usr.USER_FIRST_NAME + ' ' + usr.USER_LAST_NAME) as NAME,
-	   cd.SERIAL_NUMBER as QUOTE,
+       (usr.USER_FIRST_NAME + ' ' + usr.USER_LAST_NAME) as NAME,
+       cd.SERIAL_NUMBER as QUOTE,
        w.WORKGROUP_DESC AS  DEALER,
        wp.WORKGROUP_DESC AS DISTRIBUTOR,
        cddi.SMARTPART_NUM,
        cd.CREATE_DATE,
-	   cdd.CHILD_ID,
+       cdd.CHILD_ID,
        CASE
            WHEN cd.TYPE_CD = 'D'
              THEN 'Order'
            WHEN cd.TYPE_CD = 'Q'
              THEN 'Quote'
            ELSE 'N/A'
-          END AS 'Status',
+       END AS 'Status',
        cdd.PRICE_BOOK_ID,
        pb.name as PRICEBOOK_NAME
  FROM  CO_DOC_DETAIL_ITEM AS cddi
