@@ -1,0 +1,30 @@
+SELECT
+       cd.USER_ID,
+       cd.DOC_ID,
+	   (usr.USER_FIRST_NAME + ' ' + usr.USER_LAST_NAME) as NAME,
+	   cd.SERIAL_NUMBER as QUOTE,
+       w.WORKGROUP_DESC AS  DEALER,
+       wp.WORKGROUP_DESC AS DISTRIBUTOR,
+       cddi.SMARTPART_NUM,
+       cd.CREATE_DATE,
+	   cdd.CHILD_ID,
+       CASE
+           WHEN cd.TYPE_CD = 'D'
+             THEN 'Order'
+           WHEN cd.TYPE_CD = 'Q'
+             THEN 'Quote'
+           ELSE 'N/A'
+          END AS 'Status',
+       cdd.PRICE_BOOK_ID,
+       pb.name as PRICEBOOK_NAME
+ FROM  CO_DOC_DETAIL_ITEM AS cddi
+       LEFT JOIN CO_DOC AS cd ON cddi.DOC_ID = cd.DOC_ID
+       LEFT JOIN CO_DOC_DETAIL AS cdd ON cddi.DETAIL_ID = cdd.DETAIL_ID
+       LEFT JOIN CO_PRICE_BOOK AS pb ON cdd.PRICE_BOOK_ID = pb.PRICE_BOOK_ID
+       LEFT JOIN co_workgroup_user AS wu ON cddi.user_id = wu.USER_ID
+       LEFT JOIN CO_USER AS usr ON wu.USER_ID = usr.USER_ID
+       LEFT JOIN CO_WORKGROUP AS w ON wu.WORKGROUP_ID = w.WORKGROUP_ID
+       LEFT JOIN co_workgroup AS wp ON w.PARENT_GROUP_ID = wp.WORKGROUP_ID
+WHERE  SMARTPART_NUM in ()
+ORDER BY
+         cd.CREATE_DATE ASC;
